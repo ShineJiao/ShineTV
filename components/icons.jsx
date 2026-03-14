@@ -379,3 +379,36 @@ export function MaterialSymbolsSmartphoneOutline(props) {
     </svg>
   );
 }
+
+export function MaterialSymbolsHomeRounded(props) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>
+      <path
+        fill="currentColor"
+        d="m12 3L4 9v12h5v-7c0-.55.45-1 1-1s1 .45 1 1v7h5V9z"
+      />
+    </svg>
+  );
+}
+
+export function MaterialSymbolsAnimationRounded(props) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>
+      <path
+        fill="currentColor"
+        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-2.5l6-3.5-6-3.5z"
+      />
+    </svg>
+  );
+}
+
+export function MaterialSymbolsLiveTvRounded(props) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>
+      <path
+        fill="currentColor"
+        d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"
+      />
+    </svg>
+  );
+}

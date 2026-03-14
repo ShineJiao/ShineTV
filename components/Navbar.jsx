@@ -7,6 +7,7 @@ import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { formatTimeShort } from "@/lib/util";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { SearchBox } from "@/components/SearchBox";
 import {
   MaterialSymbolsHistoryRounded,
@@ -15,15 +16,21 @@ import {
   MaterialSymbolsDeleteOutlineRounded,
   MaterialSymbolsVideoLibraryOutlineRounded,
   SimpleIconsGithub,
+  MaterialSymbolsCloseRounded,
 } from "@/components/icons";
+
+// 动态导入设置页面组件
+const SettingsContent = dynamic(() => import("@/app/settings/page"), { ssr: false });
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const [showFavoritesDropdown, setShowFavoritesDropdown] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const dropdownRef = useRef(null);
   const favoritesDropdownRef = useRef(null);
+  const settingsBtnRef = useRef(null);
 
   // 获取播放历史
   const playHistory = usePlayHistoryStore((state) => state.playHistory);
@@ -51,16 +58,20 @@ export function Navbar() {
       ) {
         setShowFavoritesDropdown(false);
       }
+      // 点击设置按钮外部时关闭设置对话框
+      if (showSettingsModal && settingsBtnRef.current && !settingsBtnRef.current.contains(event.target)) {
+        setShowSettingsModal(false);
+      }
     };
 
-    if (showHistoryDropdown || showFavoritesDropdown) {
+    if (showHistoryDropdown || showFavoritesDropdown || showSettingsModal) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showHistoryDropdown, showFavoritesDropdown]);
+  }, [showHistoryDropdown, showFavoritesDropdown, showSettingsModal]);
 
 
   const handleHistoryClick = (record) => {
@@ -116,30 +127,25 @@ export function Navbar() {
           onClick={() => router.push("/")}
         >
           <div className="relative group-hover:scale-105 transition-transform duration-200">
-            <Image
-              src="https://tncache1-f1.v3mh.com/image/2026/01/14/67727e3ade57c7062ef81a16d4f711a0.png"
-              alt="NextTV"
-              width={20}
-              height={20}
-              className="w-5 h-5 object-contain"
-            />
           </div>
           <div className="flex flex-col justify-center h-full">
             <h1 className="text-xl font-extrabold leading-none tracking-tight">
-              <span className="text-gray-900">Next</span>
+              <span className="text-gray-900">灬灬</span>
               <span className="text-primary">TV</span>
             </h1>
-            <span className="text-[10px] text-gray-500 text-center font-medium tracking-wide group-hover:text-primary transition-colors">
-              影视无限畅享
+            <span className="text-[1px] text-gray-500 text-center font-medium tracking-wide group-hover:text-primary transition-colors">
+              ▂▃▄▅▆▇█ 
             </span>
           </div>
         </div>
 
-        <div className="flex-1 max-w-md mx-6">
-          <SearchBox />
+        <div className="hidden md:flex flex-1 max-w-md mx-6">
+          {/* 搜索框 */}
+          <SearchBox onSearch={(q) => router.push(`/search?q=${encodeURIComponent(q)}`)} placeholder="搜索电影、电视剧、短剧..." />
         </div>
 
         <div className="flex items-center gap-3">
+
           {/* History Dropdown */}
           <div className="static md:relative" ref={dropdownRef}>
             <button
@@ -322,13 +328,44 @@ export function Navbar() {
           <Link
             href="/settings"
             aria-label="Settings"
-            className={`flex items-center justify-center size-10 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors cursor-pointer btn-press ${pathname === "/settings" ? "bg-gray-100 text-gray-900" : ""
-              }`}
+            ref={settingsBtnRef}
+            onClick={(e) => {
+              e.preventDefault();
+              setShowSettingsModal(!showSettingsModal);
+            }}
+            className={`flex items-center justify-center size-10 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors cursor-pointer btn-press ${
+              showSettingsModal || pathname === "/settings" ? "bg-gray-100 text-gray-900" : ""
+            }`}
           >
             <MaterialSymbolsSettingsOutlineRounded className="text-2xl" />
           </Link>
         </div>
       </header>
+
+      {/* 移动端搜索 */}
+      <div className="md:hidden max-w-7xl mx-auto mt-3">
+        {/* 搜索框 */}
+        <SearchBox onSearch={(q) => router.push(`/search?q=${encodeURIComponent(q)}`)} placeholder="搜索电影、电视剧、短剧..." />
+      </div>
+
+      {/* 设置对话框 */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-[60] modal-backdrop-enter" onClick={() => setShowSettingsModal(false)}>
+          <div className="bg-white rounded-2xl p-6 max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto modal-content-enter relative" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white pb-4 mb-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="text-2xl font-bold text-gray-900">设置</h3>
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer transition-colors btn-press p-2 hover:bg-gray-100 rounded-lg"
+                aria-label="关闭"
+              >
+                <MaterialSymbolsCloseRounded className="text-2xl" />
+              </button>
+            </div>
+            <SettingsContent inModal={true} onClose={() => setShowSettingsModal(false)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
