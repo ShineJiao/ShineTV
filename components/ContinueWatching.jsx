@@ -85,6 +85,19 @@ export function ContinueWatching({ playHistory }) {
     return null;
   }
 
+  // 计算继续观看列表（进度在5%-95%之间）
+  const continueWatching = playHistory.filter(
+    (record) => record.progress > 5 && record.progress < 95
+  );
+
+  // 观看历史（已看完或刚开始的）
+  const watchHistory = playHistory.filter(
+    (record) => record.progress <= 5 || record.progress >= 95
+  );
+
+  // 根据当前标签页显示对应数据
+  const displayData = activeTab === "continue" ? continueWatching : watchHistory;
+
   // 格式化集数信息
   function formatEpisodeInfo(record) {
     const remainingTime = formatTimeRemaining(record.duration - record.currentTime);
@@ -119,7 +132,7 @@ export function ContinueWatching({ playHistory }) {
       {/* 标题和标签页切换 */}
       <div className="flex items-center justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <span className="w-1 h-6 bg-primary rounded-full"></span>
+          <span className="w-1 h-6 bg-primary rounded-full" />
           {activeTab === "continue" ? "继续观看" : "观看历史"}
         </h2>
         
@@ -180,7 +193,7 @@ export function ContinueWatching({ playHistory }) {
               {activeTab === "continue" && updatedEpisodes[`${record.source}-${record.id}`] > 0 && (
                 <div className="absolute top-0 right-0 z-20">
                   <div className="relative">
-                    <span className="absolute -left-1 top-1 animate-ping inline-flex h-3 w-3 rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="absolute -left-1 top-1 animate-ping inline-flex h-3 w-3 rounded-full bg-rose-400 opacity-75" />
                     <span className="relative flex items-center justify-center bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold shadow-sm">
                       更新 {updatedEpisodes[`${record.source}-${record.id}`]} 集
                     </span>
@@ -227,8 +240,9 @@ export function ContinueWatching({ playHistory }) {
                   </div>
                 </div>
               )}
-            
-            <div className="flex gap-4 p-4">
+              
+              {/* 卡片内容 */}
+              <div className="flex gap-4 p-4">
               {/* 海报 */}
               <div className="relative w-24 h-36 bg-gray-100 rounded-lg overflow-hidden shrink-0">
                 <img
@@ -272,7 +286,7 @@ export function ContinueWatching({ playHistory }) {
                     <div
                       className="h-full bg-primary transition-all duration-300"
                       style={{ width: `${Math.min(record.progress, 100)}%` }}
-                    ></div>
+                    />
                   </div>
                   <p className="text-xs text-gray-400 mt-1">
                     {Math.floor(record.progress)}%
