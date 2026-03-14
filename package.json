@@ -1,7 +1,8 @@
 {
-  "name": "灬灬tv",
+  "name": "灬灬 tv",
   "version": "2.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
