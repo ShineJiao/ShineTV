@@ -3,7 +3,7 @@
 <div align="center">
   <img src="./public/logo.png" alt="灬灬TV Logo" width="50" height="50" />
 
-  <p><strong>现代化的视频流媒体播放平台</strong></p>
+  <p><strong>AI生成视频流媒体播放平台</strong></p>
 
   <p>
     一个功能丰富的视频流媒体应用，支持多源搜索、智能播放、弹幕互动和历史记录管理
@@ -45,7 +45,7 @@
 - ⌨️ **快捷键支持** - 丰富的键盘快捷键，提升观看体验
 - 🔔 **首页剧集更新提醒** - 首页继续观看区域展示剧集更新提醒
 - 📱 **全平台响应式** - 完美适配 PC、平板、手机和 TV 设备
-- 🎨 **墨绿色主题** - 统一的 UI 设计和配色方案
+- 🎨 **浅湖绿主题** - 统一的 UI 设计和配色方案
 
 ---
 
@@ -538,5 +538,5 @@ Fork 项目后，进入 EdgeOne pages 即可部署。
 ---
 
 <div align="center">
-  <p>Made with ❤️ by Xiaoguang </p>
+  <p>ShineJ</p>
 </div>
