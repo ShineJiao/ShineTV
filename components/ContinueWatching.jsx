@@ -3,13 +3,22 @@
 import { useRouter } from "next/navigation";
 import { formatTimeRemaining } from "@/lib/util";
 import { useSettingsStore } from "@/store/useSettingsStore";
+import { usePlayHistoryStore } from "@/store/usePlayHistoryStore";
 import { useEffect, useState } from "react";
-import { MaterialSymbolsPlayArrowRounded } from "@/components/icons";
+import {
+  MaterialSymbolsPlayArrowRounded,
+  MaterialSymbolsCloseRounded,
+  MaterialSymbolsHistoryRounded,
+  MaterialSymbolsPlayCircleOutlineRounded,
+} from "@/components/icons";
 
 export function ContinueWatching({ playHistory }) {
   const router = useRouter();
   const { videoSources } = useSettingsStore();
+  const removePlayRecord = usePlayHistoryStore((state) => state.removePlayRecord);
   const [updatedEpisodes, setUpdatedEpisodes] = useState({});
+  const [activeTab, setActiveTab] = useState("continue"); // 'continue' | 'history'
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
   useEffect(() => {
     if (!playHistory || playHistory.length === 0) return;
@@ -89,32 +98,136 @@ export function ContinueWatching({ playHistory }) {
     router.push(`/play/${record.id}?source=${record.source}`);
   }
 
+  function handleDeleteClick(e, record) {
+    e.stopPropagation();
+    setShowDeleteConfirm(`${record.source}-${record.id}`);
+  }
+
+  function confirmDelete(e, record) {
+    e.stopPropagation();
+    removePlayRecord(record.source, record.id);
+    setShowDeleteConfirm(null);
+  }
+
+  function cancelDelete(e) {
+    e.stopPropagation();
+    setShowDeleteConfirm(null);
+  }
+
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-6">
+      {/* 标题和标签页切换 */}
+      <div className="flex items-center justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <span className="w-1 h-6 bg-primary rounded-full"></span>
-          继续观看
+          {activeTab === "continue" ? "继续观看" : "观看历史"}
         </h2>
+        
+        {/* 标签页切换按钮 */}
+        <div className="flex bg-gray-100 rounded-xl p-1">
+          <button
+            onClick={() => setActiveTab("continue")}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "continue"
+                ? "bg-white text-primary shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <MaterialSymbolsPlayCircleOutlineRounded className="text-[18px]" />
+            <span className="hidden sm:inline">继续观看</span>
+            {continueWatching.length > 0 && (
+              <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded-md text-xs font-bold">
+                {continueWatching.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "history"
+                ? "bg-white text-primary shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <MaterialSymbolsHistoryRounded className="text-[18px]" />
+            <span className="hidden sm:inline">观看历史</span>
+            {watchHistory.length > 0 && (
+              <span className="bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-md text-xs font-bold">
+                {watchHistory.length}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
-        {playHistory.slice(0, 6).map((record) => (
-          <div
-            key={`${record.source}-${record.id}`}
-            className="group relative shrink-0 w-[280px] bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-primary transition-colors duration-300 cursor-pointer"
-            onClick={() => handlePlayClick(record)}
-          >
-            {updatedEpisodes[`${record.source}-${record.id}`] > 0 && (
-              <div className="absolute top-0 right-0 z-20">
-                <div className="relative">
-                  <span className="absolute -left-1 top-1 animate-ping inline-flex h-3 w-3 rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative flex items-center justify-center bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold shadow-sm">
-                    更新 {updatedEpisodes[`${record.source}-${record.id}`]} 集
-                  </span>
+      {/* 内容区域 */}
+      {displayData.length === 0 ? (
+        <div className="text-center py-12 bg-gray-50 rounded-2xl border border-gray-100">
+          <p className="text-gray-400 text-sm">
+            {activeTab === "continue" 
+              ? "没有未看完的视频，快去观看吧～" 
+              : "还没有观看记录哦～"}
+          </p>
+        </div>
+      ) : (
+        <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+          {displayData.slice(0, 6).map((record) => (
+            <div
+              key={`${record.source}-${record.id}`}
+              className="group relative shrink-0 w-[280px] bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-primary transition-colors duration-300 cursor-pointer"
+              onClick={() => handlePlayClick(record)}
+            >
+              {activeTab === "continue" && updatedEpisodes[`${record.source}-${record.id}`] > 0 && (
+                <div className="absolute top-0 right-0 z-20">
+                  <div className="relative">
+                    <span className="absolute -left-1 top-1 animate-ping inline-flex h-3 w-3 rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative flex items-center justify-center bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold shadow-sm">
+                      更新 {updatedEpisodes[`${record.source}-${record.id}`]} 集
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+              
+              {/* 删除按钮 */}
+              <button
+                onClick={(e) => handleDeleteClick(e, record)}
+                className="absolute top-2 right-2 z-30 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-500 hover:scale-110"
+                title="删除记录"
+              >
+                <MaterialSymbolsCloseRounded className="text-[18px]" />
+              </button>
+              
+              {/* 删除确认弹窗 */}
+              {showDeleteConfirm === `${record.source}-${record.id}` && (
+                <div
+                  className="absolute inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                  onClick={cancelDelete}
+                >
+                  <div
+                    className="bg-white rounded-xl p-4 max-w-[240px] text-center shadow-2xl scale-100 animate-in fade-in zoom-in duration-200"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <p className="text-sm font-medium text-gray-900 mb-3">
+                      确定删除这条记录吗？
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={cancelDelete}
+                        className="flex-1 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                      >
+                        取消
+                      </button>
+                      <button
+                        onClick={(e) => confirmDelete(e, record)}
+                        className="flex-1 px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+                      >
+                        删除
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            
             <div className="flex gap-4 p-4">
               {/* 海报 */}
               <div className="relative w-24 h-36 bg-gray-100 rounded-lg overflow-hidden shrink-0">

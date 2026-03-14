@@ -58,20 +58,16 @@ export function Navbar() {
       ) {
         setShowFavoritesDropdown(false);
       }
-      // 点击设置按钮外部时关闭设置对话框
-      if (showSettingsModal && settingsBtnRef.current && !settingsBtnRef.current.contains(event.target)) {
-        setShowSettingsModal(false);
-      }
     };
 
-    if (showHistoryDropdown || showFavoritesDropdown || showSettingsModal) {
+    if (showHistoryDropdown || showFavoritesDropdown) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showHistoryDropdown, showFavoritesDropdown, showSettingsModal]);
+  }, [showHistoryDropdown, showFavoritesDropdown]);
 
 
   const handleHistoryClick = (record) => {

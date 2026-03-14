@@ -57,28 +57,6 @@ export function SideMenu({ mediaType, onMediaTypeChange }) {
 
   return (
     <>
-      {/* 切换按钮 - 在屏幕右边缘 */}
-      <button
-        ref={toggleBtnRef}
-        onClick={() => setIsOpen(!isOpen)}
-        className={`fixed right-0 top-1/2 -translate-y-1/2 z-40 w-10 h-20 rounded-l-xl flex items-center justify-center transition-all duration-300 shadow-lg ${
-          isOpen
-            ? "bg-gray-100 text-gray-900"
-            : "bg-primary text-white hover:bg-primary-dark"
-        }`}
-        title={isOpen ? "收起菜单" : "展开菜单"}
-      >
-        {isOpen ? (
-          <MaterialSymbolsCloseRounded className="text-2xl" />
-        ) : (
-          <div className="flex flex-col gap-1">
-            <div className="w-4 h-0.5 bg-white rounded"></div>
-            <div className="w-4 h-0.5 bg-white rounded"></div>
-            <div className="w-4 h-0.5 bg-white rounded"></div>
-          </div>
-        )}
-      </button>
-
       {/* 侧边菜单栏 */}
       <div
         ref={menuRef}
@@ -86,6 +64,27 @@ export function SideMenu({ mediaType, onMediaTypeChange }) {
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
+        {/* 切换按钮 - 在菜单栏左边缘 */}
+        <button
+          ref={toggleBtnRef}
+          onClick={() => setIsOpen(!isOpen)}
+          className={`absolute -left-10 top-1/2 -translate-y-1/2 z-50 w-10 h-20 rounded-l-xl flex items-center justify-center transition-all duration-300 shadow-lg ${
+            isOpen
+              ? "bg-gray-100 text-gray-900"
+              : "bg-primary text-white hover:bg-primary-dark"
+          }`}
+          title={isOpen ? "收起菜单" : "展开菜单"}
+        >
+          {isOpen ? (
+            <MaterialSymbolsCloseRounded className="text-2xl" />
+          ) : (
+            <div className="flex flex-col gap-1">
+              <div className="w-4 h-0.5 bg-white rounded"></div>
+              <div className="w-4 h-0.5 bg-white rounded"></div>
+              <div className="w-4 h-0.5 bg-white rounded"></div>
+            </div>
+          )}
+        </button>
         <div className="flex flex-col h-full">
           {/* 头部 */}
           <div className="p-6 border-b border-gray-100">
