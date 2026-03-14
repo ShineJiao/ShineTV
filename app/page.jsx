@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from "react";
 import { MovieCard } from "@/components/MovieCard";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { ContinueWatching } from "@/components/ContinueWatching";
-import { SearchBox } from "@/components/SearchBox";
 import { usePlayHistoryStore } from "@/store/usePlayHistoryStore";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import { fetchRecommendations, loadUserTags, saveUserTags, defaultMovieTags, defaultTvTags, convertDoubanToMovie } from "@/lib/doubanApi";
@@ -15,6 +14,9 @@ import {
   MaterialSymbolsChevronLeftRounded,
   MaterialSymbolsChevronRightRounded,
   MaterialSymbolsCloseRounded,
+  MaterialSymbolsMenuRounded,
+  MaterialSymbolsAnimationOutline,
+  MaterialSymbolsLiveTvOutline,
 } from "@/components/icons";
 
 export default function Home() {
@@ -26,6 +28,7 @@ export default function Home() {
   const [movieTags, setMovieTags] = useState([]);
   const [tvTags, setTvTags] = useState([]);
   const [showTagModal, setShowTagModal] = useState(false);
+  const [showMediaMenu, setShowMediaMenu] = useState(false);
   const pageSize = 12;
 
   // 获取播放记录
@@ -76,8 +79,13 @@ export default function Home() {
       setCurrentTag("华语");
     } else if (type === "tv") {
       setCurrentTag("国产剧");
+    } else if (type === "anime") {
+      setCurrentTag("国产动画");
+    } else if (type === "variety") {
+      setCurrentTag("国综");
     }
     setPage(0);
+    setShowMediaMenu(false);
   };
 
   const handleTagClick = (tag) => {
@@ -97,7 +105,7 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const defaultTag = mediaType === "movie" ? "华语" : "国产剧";
+  const defaultTag = mediaType === "movie" ? "华语" : mediaType === "tv" ? "国产剧" : mediaType === "anime" ? "国产动画" : mediaType === "variety" ? "国综" : "热门";
   const rawTags = mediaType === "movie" ? movieTags : mediaType === "tv" ? tvTags : [];
   const currentTags = rawTags.includes(defaultTag) ? [defaultTag, ...rawTags.filter((t) => t !== defaultTag)] : rawTags;
 
@@ -159,40 +167,171 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full max-w-7xl flex flex-col gap-8 pt-6 page-enter">
-      {/* Search Hero */}
+    <div className="w-full max-w-7xl flex flex-col gap-8 pt-6 page-enter relative">
+      {/* Hero Section - 媒体类型切换按钮 */}
       <div className="flex flex-col items-center justify-start gap-6 w-full max-w-3xl mx-auto">
-        <SearchBox />
-
-        <div className="bg-gray-100 p-1 rounded-lg inline-flex items-center gap-0.5">
-          <label className="cursor-pointer relative">
-            <input className="peer sr-only" name="media-type" type="radio" value="movie" checked={mediaType === "movie"} onChange={() => handleMediaTypeChange("movie")} />
-            <div className="media-toggle-btn px-6 py-2 rounded-lg text-sm font-semibold text-gray-500 peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm flex items-center gap-2 transition-all">
-              <MaterialSymbolsMovieOutlineRounded className="text-[18px]" />
-              电影
-            </div>
-          </label>
-          <div className={`w-px h-4 bg-gray-300 ${mediaType === "movie" || mediaType === "tv" ? "opacity-0" : "opacity-100"} transition-opacity`}></div>
-          <label className="cursor-pointer relative">
-            <input className="peer sr-only" name="media-type" type="radio" value="tv" checked={mediaType === "tv"} onChange={() => handleMediaTypeChange("tv")} />
-            <div className="media-toggle-btn px-6 py-2 rounded-lg text-sm font-semibold text-gray-500 peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm flex items-center gap-2 transition-all">
-              <MaterialSymbolsTvOutlineRounded className="text-[18px]" />
-              电视剧
-            </div>
-          </label>
-          <div className={`w-px h-4 bg-gray-300 ${mediaType === "tv" || mediaType === "short" ? "opacity-0" : "opacity-100"} transition-opacity`}></div>
-          <label className="cursor-pointer relative">
-            <input className="peer sr-only" name="media-type" type="radio" value="short" checked={mediaType === "short"} onChange={() => handleMediaTypeChange("short")} />
-            <div className="media-toggle-btn px-6 py-2 rounded-lg text-sm font-semibold text-gray-500 peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm flex items-center gap-2 transition-all">
-              <MaterialSymbolsSmartphoneOutline className="text-[18px]" />
-              短剧
-            </div>
-          </label>
-        </div>
+        <button
+          onClick={() => setShowMediaMenu(true)}
+          className="px-8 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all btn-press flex items-center gap-3"
+        >
+          <MaterialSymbolsMenuRounded className="text-[24px]" />
+          选择分类
+        </button>
       </div>
+      {/* Right Slide Menu */}
+      {showMediaMenu && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 modal-backdrop-enter" 
+            onClick={() => setShowMediaMenu(false)}
+          />
+          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out slide-in-right">
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">媒体分类</h2>
+                <button 
+                  onClick={() => setShowMediaMenu(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors btn-press"
+                >
+                  <MaterialSymbolsCloseRounded className="text-[24px]" />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="space-y-3">
+                  {/* 电影 */}
+                  <button
+                    onClick={() => handleMediaTypeChange("movie")}
+                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                      mediaType === "movie"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className={`p-3 rounded-lg ${mediaType === "movie" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsMovieOutlineRounded className="text-[24px]" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold text-base">电影</div>
+                      <div className="text-xs text-gray-500 mt-0.5">华语 · 欧美 · 日韩</div>
+                    </div>
+                    {mediaType === "movie" && (
+                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
 
-      {/* Categories - 短剧模式不显示标签 */}
-      {mediaType !== "short" && (
+                  {/* 电视剧 */}
+                  <button
+                    onClick={() => handleMediaTypeChange("tv")}
+                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                      mediaType === "tv"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className={`p-3 rounded-lg ${mediaType === "tv" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsTvOutlineRounded className="text-[24px]" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold text-base">电视剧</div>
+                      <div className="text-xs text-gray-500 mt-0.5">国产剧 · 美剧 · 日韩剧</div>
+                    </div>
+                    {mediaType === "tv" && (
+                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* 动漫 */}
+                  <button
+                    onClick={() => handleMediaTypeChange("anime")}
+                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                      mediaType === "anime"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className={`p-3 rounded-lg ${mediaType === "anime" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsAnimationOutline className="text-[24px]" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold text-base">动漫</div>
+                      <div className="text-xs text-gray-500 mt-0.5">国产动画 · 日本动漫 · 欧美动漫</div>
+                    </div>
+                    {mediaType === "anime" && (
+                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* 综艺 */}
+                  <button
+                    onClick={() => handleMediaTypeChange("variety")}
+                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                      mediaType === "variety"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className={`p-3 rounded-lg ${mediaType === "variety" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsLiveTvOutline className="text-[24px]" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold text-base">综艺</div>
+                      <div className="text-xs text-gray-500 mt-0.5">国综 · 韩综 · 日综</div>
+                    </div>
+                    {mediaType === "variety" && (
+                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* 短剧 */}
+                  <button
+                    onClick={() => handleMediaTypeChange("short")}
+                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                      mediaType === "short"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className={`p-3 rounded-lg ${mediaType === "short" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsSmartphoneOutline className="text-[24px]" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold text-base">短剧</div>
+                      <div className="text-xs text-gray-500 mt-0.5">红果短剧精选</div>
+                    </div>
+                    {mediaType === "short" && (
+                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Categories - 短剧、动漫、综艺模式不显示标签 */}
+      {(mediaType === "movie" || mediaType === "tv") && (
       <div className="w-full overflow-hidden relative group/scroll">
         <div className="flex gap-3 overflow-x-auto hide-scrollbar py-2 px-1">
           <button
@@ -219,6 +358,9 @@ export default function Home() {
         <div className="absolute right-0 top-0 bottom-0 w-24 bg-linear-to-l from-background-light to-transparent pointer-events-none"></div>
       </div>
       )}
+
+      {/* Continue Watching Section */}
+      {playHistory && playHistory.length > 0 && <ContinueWatching playHistory={playHistory} />}
 
       {/* Popular Section */}
       <div>
@@ -271,9 +413,6 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      {/* Continue Watching Section */}
-      {playHistory && playHistory.length > 0 && <ContinueWatching playHistory={playHistory} />}
 
       {/* Tag Management Modal */}
       {showTagModal && (

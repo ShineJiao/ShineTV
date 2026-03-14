@@ -5,8 +5,8 @@
 @source '../pages/**/*.{js,jsx,ts,tsx,mdx}';
 
 @theme {
-  --color-primary: #fac638;
-  --color-primary-dark: #e5b120;
+  --color-primary: #2d5016;
+  --color-primary-dark: #1e3a0f;
   --color-background-light: #f9fafb;
   --color-surface-light: #ffffff;
   --color-surface-active: #f3f4f6;
@@ -58,11 +58,11 @@
 }
 
 .toggle-checkbox:checked + .toggle-label {
-  background-color: #fac638;
+  background-color: #2d5016;
 }
 
 .selection\:bg-primary::selection {
-  background-color: #fac638;
+  background-color: #2d5016;
 }
 
 .selection\:text-white::selection {
@@ -80,7 +80,7 @@
 /* 暂停按钮 */
 
 .art-icon-state svg {
-  fill: #fac638 !important;
+  fill: #2d5016 !important;
 }
 
 /* ===== Volume Control Hover Optimization ===== */
@@ -495,4 +495,18 @@ html {
 
 .dropdown-enter {
   animation: dropdownSlideDown 0.2s ease-out;
+}
+
+/* ===== Right Slide Menu Animation ===== */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
