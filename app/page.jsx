@@ -14,9 +14,8 @@ import {
   MaterialSymbolsChevronLeftRounded,
   MaterialSymbolsChevronRightRounded,
   MaterialSymbolsCloseRounded,
-  MaterialSymbolsMenuRounded,
-  MaterialSymbolsAnimationOutline,
-  MaterialSymbolsLiveTvOutline,
+  MaterialSymbolsStarOutlineRounded,
+  MaterialSymbolsGridViewOutlineRounded,
 } from "@/components/icons";
 
 export default function Home() {
@@ -172,9 +171,9 @@ export default function Home() {
       <div className="flex flex-col items-center justify-start gap-6 w-full max-w-3xl mx-auto">
         <button
           onClick={() => setShowMediaMenu(true)}
-          className="px-8 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all btn-press flex items-center gap-3"
+          className="w-full max-w-xs px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all btn-press flex items-center justify-center gap-3 sm:w-auto sm:max-w-none"
         >
-          <MaterialSymbolsMenuRounded className="text-[24px]" />
+          <MaterialSymbolsAdd className="text-[24px]" />
           选择分类
         </button>
       </div>
@@ -185,10 +184,10 @@ export default function Home() {
             className="fixed inset-0 bg-black/50 z-40 modal-backdrop-enter" 
             onClick={() => setShowMediaMenu(false)}
           />
-          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out slide-in-right">
+          <div className="fixed top-0 right-0 h-full w-full max-w-xs bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out slide-in-right sm:max-w-sm">
             <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-gray-900">媒体分类</h2>
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">媒体分类</h2>
                 <button 
                   onClick={() => setShowMediaMenu(false)}
                   className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors btn-press"
@@ -197,27 +196,27 @@ export default function Home() {
                 </button>
               </div>
               
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                 <div className="space-y-3">
                   {/* 电影 */}
                   <button
                     onClick={() => handleMediaTypeChange("movie")}
-                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                    className={`w-full p-3 sm:p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-3 sm:gap-4 ${
                       mediaType === "movie"
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
                     }`}
                   >
-                    <div className={`p-3 rounded-lg ${mediaType === "movie" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
-                      <MaterialSymbolsMovieOutlineRounded className="text-[24px]" />
+                    <div className={`p-2 sm:p-3 rounded-lg ${mediaType === "movie" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsMovieOutlineRounded className="text-[20px] sm:text-[24px]" />
                     </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-semibold text-base">电影</div>
-                      <div className="text-xs text-gray-500 mt-0.5">华语 · 欧美 · 日韩</div>
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="font-semibold text-sm sm:text-base">电影</div>
+                      <div className="text-xs text-gray-500 mt-0.5 truncate">华语 · 欧美 · 日韩</div>
                     </div>
                     {mediaType === "movie" && (
-                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary flex items-center justify-center shrink-0">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
@@ -227,22 +226,22 @@ export default function Home() {
                   {/* 电视剧 */}
                   <button
                     onClick={() => handleMediaTypeChange("tv")}
-                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                    className={`w-full p-3 sm:p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-3 sm:gap-4 ${
                       mediaType === "tv"
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
                     }`}
                   >
-                    <div className={`p-3 rounded-lg ${mediaType === "tv" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
-                      <MaterialSymbolsTvOutlineRounded className="text-[24px]" />
+                    <div className={`p-2 sm:p-3 rounded-lg ${mediaType === "tv" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsTvOutlineRounded className="text-[20px] sm:text-[24px]" />
                     </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-semibold text-base">电视剧</div>
-                      <div className="text-xs text-gray-500 mt-0.5">国产剧 · 美剧 · 日韩剧</div>
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="font-semibold text-sm sm:text-base">电视剧</div>
+                      <div className="text-xs text-gray-500 mt-0.5 truncate">国产剧 · 美剧 · 日韩剧</div>
                     </div>
                     {mediaType === "tv" && (
-                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary flex items-center justify-center shrink-0">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
@@ -252,22 +251,22 @@ export default function Home() {
                   {/* 动漫 */}
                   <button
                     onClick={() => handleMediaTypeChange("anime")}
-                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                    className={`w-full p-3 sm:p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-3 sm:gap-4 ${
                       mediaType === "anime"
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
                     }`}
                   >
-                    <div className={`p-3 rounded-lg ${mediaType === "anime" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
-                      <MaterialSymbolsAnimationOutline className="text-[24px]" />
+                    <div className={`p-2 sm:p-3 rounded-lg ${mediaType === "anime" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsStarOutlineRounded className="text-[20px] sm:text-[24px]" />
                     </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-semibold text-base">动漫</div>
-                      <div className="text-xs text-gray-500 mt-0.5">国产动画 · 日本动漫 · 欧美动漫</div>
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="font-semibold text-sm sm:text-base">动漫</div>
+                      <div className="text-xs text-gray-500 mt-0.5 truncate">国产动画 · 日本动漫 · 欧美动漫</div>
                     </div>
                     {mediaType === "anime" && (
-                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary flex items-center justify-center shrink-0">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
@@ -277,22 +276,22 @@ export default function Home() {
                   {/* 综艺 */}
                   <button
                     onClick={() => handleMediaTypeChange("variety")}
-                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                    className={`w-full p-3 sm:p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-3 sm:gap-4 ${
                       mediaType === "variety"
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
                     }`}
                   >
-                    <div className={`p-3 rounded-lg ${mediaType === "variety" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
-                      <MaterialSymbolsLiveTvOutline className="text-[24px]" />
+                    <div className={`p-2 sm:p-3 rounded-lg ${mediaType === "variety" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsGridViewOutlineRounded className="text-[20px] sm:text-[24px]" />
                     </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-semibold text-base">综艺</div>
-                      <div className="text-xs text-gray-500 mt-0.5">国综 · 韩综 · 日综</div>
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="font-semibold text-sm sm:text-base">综艺</div>
+                      <div className="text-xs text-gray-500 mt-0.5 truncate">国综 · 韩综 · 日综</div>
                     </div>
                     {mediaType === "variety" && (
-                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary flex items-center justify-center shrink-0">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
@@ -302,22 +301,22 @@ export default function Home() {
                   {/* 短剧 */}
                   <button
                     onClick={() => handleMediaTypeChange("short")}
-                    className={`w-full p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-4 ${
+                    className={`w-full p-3 sm:p-4 rounded-xl border-2 transition-all btn-press flex items-center gap-3 sm:gap-4 ${
                       mediaType === "short"
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
                     }`}
                   >
-                    <div className={`p-3 rounded-lg ${mediaType === "short" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
-                      <MaterialSymbolsSmartphoneOutline className="text-[24px]" />
+                    <div className={`p-2 sm:p-3 rounded-lg ${mediaType === "short" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                      <MaterialSymbolsSmartphoneOutline className="text-[20px] sm:text-[24px]" />
                     </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-semibold text-base">短剧</div>
-                      <div className="text-xs text-gray-500 mt-0.5">红果短剧精选</div>
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="font-semibold text-sm sm:text-base">短剧</div>
+                      <div className="text-xs text-gray-500 mt-0.5 truncate">红果短剧精选</div>
                     </div>
                     {mediaType === "short" && (
-                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary flex items-center justify-center shrink-0">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
