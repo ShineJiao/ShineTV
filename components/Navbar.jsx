@@ -7,6 +7,7 @@ import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { formatTimeShort } from "@/lib/util";
 import Image from "next/image";
 import Link from "next/link";
+import { SearchBox } from "@/components/SearchBox";
 import {
   MaterialSymbolsHistoryRounded,
   MaterialSymbolsFavoriteOutlineRounded,
@@ -134,26 +135,11 @@ export function Navbar() {
           </div>
         </div>
 
-        <div className="hidden md:flex flex-1 max-w-md mx-6">
-          {/* Minimal search for navbar if needed */}
+        <div className="flex-1 max-w-md mx-6">
+          <SearchBox />
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="https://github.com/SeqCrafter/NextTV"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub"
-            className="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors btn-press"
-          >
-            <SimpleIconsGithub
-              aria-hidden="true"
-              className="size-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            />
-          </Link>
-
           {/* History Dropdown */}
           <div className="static md:relative" ref={dropdownRef}>
             <button
