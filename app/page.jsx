@@ -14,7 +14,7 @@ import {
   MaterialSymbolsCloseRounded,
   MaterialSymbolsAdd,
   MaterialSymbolsFireRounded,
-  MaterialSymbolsNewReleasesRounded,
+  MaterialSymbolsNewReleasesRounded
 } from "@/components/icons";
 
 export default function Home() {
