@@ -209,6 +209,14 @@ export default function Settings() {
     doubanImageProxy,
     setDoubanProxy,
     setDoubanImageProxy,
+    siteName,
+    siteSlogan,
+    siteLogo,
+    githubUrl,
+    setSiteName,
+    setSiteSlogan,
+    setSiteLogo,
+    setGithubUrl,
   } = useSettingsStore();
 
   // State for modals and forms
@@ -486,6 +494,75 @@ export default function Settings() {
               onMoveDown={(id) => moveSource(id, "down", "danmaku")}
             />
           ))}
+        </div>
+      </section>
+
+      {/* Brand Configuration */}
+      <section className="bg-white rounded-2xl shadow-soft p-4 md:p-8 mt-6 border border-gray-100">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900">品牌配置</h2>
+          <p className="text-gray-500 mt-1">自定义网站名称、标语、Logo 和 GitHub 链接</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">网站名称</label>
+            <input
+              type="text"
+              value={siteName}
+              onChange={(e) => setSiteName(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              placeholder="例如：NextTV"
+            />
+            <p className="text-xs text-gray-500">显示在导航栏和页脚</p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">网站标语</label>
+            <input
+              type="text"
+              value={siteSlogan}
+              onChange={(e) => setSiteSlogan(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              placeholder="例如：影视无限畅享"
+            />
+            <p className="text-xs text-gray-500">显示在 Logo 下方</p>
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-sm font-medium text-gray-700">Logo 图片地址</label>
+            <input
+              type="url"
+              value={siteLogo}
+              onChange={(e) => setSiteLogo(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              placeholder="https://example.com/logo.png"
+            />
+            <p className="text-xs text-gray-500">建议使用 64x64 像素的透明背景图片</p>
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-sm font-medium text-gray-700">GitHub 链接</label>
+            <input
+              type="url"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              placeholder="https://github.com/username/repo"
+            />
+            <p className="text-xs text-gray-500">用于导航栏和页脚的 GitHub 按钮</p>
+          </div>
+        </div>
+
+        <div className="mt-6 p-4 bg-gray-50 rounded-xl">
+          <h3 className="font-semibold text-gray-900 mb-3">预览</h3>
+          <div className="flex items-center gap-3">
+            <img src={siteLogo} alt={siteName} className="w-8 h-8 object-contain" />
+            <div>
+              <p className="font-bold text-gray-900">{siteName}</p>
+              <p className="text-xs text-gray-500">{siteSlogan}</p>
+            </div>
+          </div>
         </div>
       </section>
 
