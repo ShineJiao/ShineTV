@@ -36,10 +36,3 @@
     "unrs-resolver"
   ]
 }
-{
-  "scripts": {
-    "dev:fresh": "rm -rf .next/cache && next dev",
-    "build:fresh": "rm -rf .next && next build",
-    "lint-fix": "eslint --fix ."
-  }
-}
