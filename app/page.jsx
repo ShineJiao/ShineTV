@@ -6,40 +6,25 @@ import { ContinueWatching } from "@/components/ContinueWatching";
 import { SearchBox } from "@/components/SearchBox";
 import { usePlayHistoryStore } from "@/store/usePlayHistoryStore";
 import { useSettingsStore } from "@/store/useSettingsStore";
-import { fetchRecommendations, loadUserTags, saveUserTags, defaultMovieTags, defaultTvTags, defaultAnimeTags, defaultVarietyTags, convertDoubanToMovie } from "@/lib/doubanApi";
+import { fetchRecommendations, loadUserTags, saveUserTags, defaultMovieTags, defaultTvTags, convertDoubanToMovie } from "@/lib/doubanApi";
 import {
   MaterialSymbolsMovieOutlineRounded,
   MaterialSymbolsTvOutlineRounded,
   MaterialSymbolsSmartphoneOutline,
-  MaterialSymbolsAnimationRounded,
-  MaterialSymbolsLiveTvRounded,
-  MaterialSymbolsHomeRounded,
   MaterialSymbolsAdd,
   MaterialSymbolsChevronLeftRounded,
   MaterialSymbolsChevronRightRounded,
   MaterialSymbolsCloseRounded,
 } from "@/components/icons";
 
-// 媒体类型配置
-const MEDIA_CONFIG = {
-  home: { label: "首页", icon: MaterialSymbolsHomeRounded, defaultTag: "热门" },
-  movie: { label: "电影", icon: MaterialSymbolsMovieOutlineRounded, defaultTag: "华语" },
-  tv: { label: "电视剧", icon: MaterialSymbolsTvOutlineRounded, defaultTag: "国产剧" },
-  anime: { label: "动漫", icon: MaterialSymbolsAnimationRounded, defaultTag: "热门" },
-  variety: { label: "综艺", icon: MaterialSymbolsLiveTvRounded, defaultTag: "热门" },
-  short: { label: "短剧", icon: MaterialSymbolsSmartphoneOutline, defaultTag: "热门" },
-};
-
 export default function Home() {
-  const [mediaType, setMediaType] = useState("home");
-  const [currentTag, setCurrentTag] = useState("热门");
+  const [mediaType, setMediaType] = useState("movie");
+  const [currentTag, setCurrentTag] = useState("华语");
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [movieTags, setMovieTags] = useState([]);
   const [tvTags, setTvTags] = useState([]);
-  const [animeTags, setAnimeTags] = useState([]);
-  const [varietyTags, setVarietyTags] = useState([]);
   const [showTagModal, setShowTagModal] = useState(false);
   const pageSize = 12;
 
@@ -49,11 +34,9 @@ export default function Home() {
   const doubanProxy = useSettingsStore((state) => state.doubanProxy);
 
   useEffect(() => {
-    const { movieTags: loadedMovieTags, tvTags: loadedTvTags, animeTags: loadedAnimeTags, varietyTags: loadedVarietyTags } = loadUserTags();
+    const { movieTags: loadedMovieTags, tvTags: loadedTvTags } = loadUserTags();
     setMovieTags(loadedMovieTags);
     setTvTags(loadedTvTags);
-    setAnimeTags(loadedAnimeTags);
-    setVarietyTags(loadedVarietyTags);
   }, []);
 
   const loadMovies = useCallback(async () => {
@@ -70,24 +53,8 @@ export default function Home() {
           hongguoUrl: item.hongguoUrl,
         }));
         setMovies(converted);
-      } else if (mediaType === "home") {
-        // 首页加载所有类型的热门内容
-        const [movieData, tvData, animeData, varietyData] = await Promise.all([
-          fetchRecommendations("movie", "热门", 6, 0, doubanProxy),
-          fetchRecommendations("tv", "热门", 6, 0, doubanProxy),
-          fetchRecommendations("movie", "动画", 6, 0, doubanProxy),
-          fetchRecommendations("tv", "综艺", 6, 0, doubanProxy),
-        ]);
-        const converted = [
-          ...movieData.subjects.map((item) => ({ ...convertDoubanToMovie(item), type: "movie" })),
-          ...tvData.subjects.map((item) => ({ ...convertDoubanToMovie(item), type: "tv" })),
-          ...animeData.subjects.map((item) => ({ ...convertDoubanToMovie(item), type: "anime" })),
-          ...varietyData.subjects.map((item) => ({ ...convertDoubanToMovie(item), type: "variety" })),
-        ];
-        setMovies(converted);
       } else {
-        const type = mediaType === "anime" ? "movie" : mediaType === "variety" ? "tv" : mediaType;
-        const data = await fetchRecommendations(type, currentTag, pageSize, page * pageSize, doubanProxy);
+        const data = await fetchRecommendations(mediaType, currentTag, pageSize, page * pageSize, doubanProxy);
         const converted = data.subjects.map(convertDoubanToMovie);
         setMovies(converted);
       }
@@ -105,7 +72,11 @@ export default function Home() {
 
   const handleMediaTypeChange = (type) => {
     setMediaType(type);
-    setCurrentTag(MEDIA_CONFIG[type].defaultTag);
+    if (type === "movie") {
+      setCurrentTag("华语");
+    } else if (type === "tv") {
+      setCurrentTag("国产剧");
+    }
     setPage(0);
   };
 
@@ -126,35 +97,30 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const defaultTag = MEDIA_CONFIG[mediaType].defaultTag;
-  const rawTags = mediaType === "movie" ? movieTags : 
-                  mediaType === "tv" ? tvTags : 
-                  mediaType === "anime" ? animeTags : 
-                  mediaType === "variety" ? varietyTags : [];
+  const defaultTag = mediaType === "movie" ? "华语" : "国产剧";
+  const rawTags = mediaType === "movie" ? movieTags : mediaType === "tv" ? tvTags : [];
   const currentTags = rawTags.includes(defaultTag) ? [defaultTag, ...rawTags.filter((t) => t !== defaultTag)] : rawTags;
 
   const handleAddTag = (tagName) => {
     const trimmedTag = tagName.trim();
     if (!trimmedTag) return;
 
-    const updateTags = (currentTags, setTags, allTags) => {
-      if (currentTags.includes(trimmedTag)) {
+    if (mediaType === "movie") {
+      if (movieTags.includes(trimmedTag)) {
         alert("标签已存在");
         return;
       }
-      const newTags = [...currentTags, trimmedTag];
-      setTags(newTags);
-      saveUserTags(...allTags.map((t, i) => i === allTags.indexOf(currentTags) ? newTags : t));
-    };
-
-    if (mediaType === "movie") {
-      updateTags(movieTags, setMovieTags, [movieTags, tvTags, animeTags, varietyTags]);
-    } else if (mediaType === "tv") {
-      updateTags(tvTags, setTvTags, [movieTags, tvTags, animeTags, varietyTags]);
-    } else if (mediaType === "anime") {
-      updateTags(animeTags, setAnimeTags, [movieTags, tvTags, animeTags, varietyTags]);
-    } else if (mediaType === "variety") {
-      updateTags(varietyTags, setVarietyTags, [movieTags, tvTags, animeTags, varietyTags]);
+      const newTags = [...movieTags, trimmedTag];
+      setMovieTags(newTags);
+      saveUserTags(newTags, tvTags);
+    } else {
+      if (tvTags.includes(trimmedTag)) {
+        alert("标签已存在");
+        return;
+      }
+      const newTags = [...tvTags, trimmedTag];
+      setTvTags(newTags);
+      saveUserTags(movieTags, newTags);
     }
   };
 
@@ -164,28 +130,15 @@ export default function Home() {
       return;
     }
 
-    const deleteTag = (currentTags, setTags) => {
-      const newTags = currentTags.filter((t) => t !== tag);
-      setTags(newTags);
-      return newTags;
-    };
-
-    let newMovieTags = movieTags;
-    let newTvTags = tvTags;
-    let newAnimeTags = animeTags;
-    let newVarietyTags = varietyTags;
-
     if (mediaType === "movie") {
-      newMovieTags = deleteTag(movieTags, setMovieTags);
-    } else if (mediaType === "tv") {
-      newTvTags = deleteTag(tvTags, setTvTags);
-    } else if (mediaType === "anime") {
-      newAnimeTags = deleteTag(animeTags, setAnimeTags);
-    } else if (mediaType === "variety") {
-      newVarietyTags = deleteTag(varietyTags, setVarietyTags);
+      const newTags = movieTags.filter((t) => t !== tag);
+      setMovieTags(newTags);
+      saveUserTags(newTags, tvTags);
+    } else {
+      const newTags = tvTags.filter((t) => t !== tag);
+      setTvTags(newTags);
+      saveUserTags(movieTags, newTags);
     }
-
-    saveUserTags(newMovieTags, newTvTags, newAnimeTags, newVarietyTags);
 
     if (currentTag === tag) {
       setCurrentTag("热门");
@@ -196,24 +149,14 @@ export default function Home() {
   const handleResetTags = () => {
     if (mediaType === "movie") {
       setMovieTags([...defaultMovieTags]);
-      saveUserTags([...defaultMovieTags], tvTags, animeTags, varietyTags);
-    } else if (mediaType === "tv") {
+      saveUserTags([...defaultMovieTags], tvTags);
+    } else {
       setTvTags([...defaultTvTags]);
-      saveUserTags(movieTags, [...defaultTvTags], animeTags, varietyTags);
-    } else if (mediaType === "anime") {
-      setAnimeTags([...defaultAnimeTags]);
-      saveUserTags(movieTags, tvTags, [...defaultAnimeTags], varietyTags);
-    } else if (mediaType === "variety") {
-      setVarietyTags([...defaultVarietyTags]);
-      saveUserTags(movieTags, tvTags, animeTags, [...defaultVarietyTags]);
+      saveUserTags(movieTags, [...defaultTvTags]);
     }
     setCurrentTag("热门");
     setPage(0);
   };
-
-  // 获取当前媒体类型的配置
-  const currentMediaConfig = MEDIA_CONFIG[mediaType];
-  const CurrentIcon = currentMediaConfig.icon;
 
   return (
     <div className="w-full max-w-7xl flex flex-col gap-8 pt-6 page-enter">
@@ -221,57 +164,60 @@ export default function Home() {
       <div className="flex flex-col items-center justify-start gap-6 w-full max-w-3xl mx-auto">
         <SearchBox />
 
-        {/* 媒体类型切换 - 圆角按钮组 */}
-        <div className="bg-gray-100 p-1.5 rounded-2xl inline-flex items-center gap-1">
-          {Object.entries(MEDIA_CONFIG).map(([key, config]) => {
-            const Icon = config.icon;
-            return (
-              <label key={key} className="cursor-pointer relative">
-                <input 
-                  className="peer sr-only" 
-                  name="media-type" 
-                  type="radio" 
-                  value={key} 
-                  checked={mediaType === key} 
-                  onChange={() => handleMediaTypeChange(key)} 
-                />
-                <div className="media-toggle-btn px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-500 peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-md flex items-center gap-2 transition-all duration-200 hover:bg-gray-200/50">
-                  <Icon className="text-[18px]" />
-                  {config.label}
-                </div>
-              </label>
-            );
-          })}
+        <div className="bg-gray-100 p-1 rounded-lg inline-flex items-center gap-0.5">
+          <label className="cursor-pointer relative">
+            <input className="peer sr-only" name="media-type" type="radio" value="movie" checked={mediaType === "movie"} onChange={() => handleMediaTypeChange("movie")} />
+            <div className="media-toggle-btn px-6 py-2 rounded-lg text-sm font-semibold text-gray-500 peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm flex items-center gap-2 transition-all">
+              <MaterialSymbolsMovieOutlineRounded className="text-[18px]" />
+              电影
+            </div>
+          </label>
+          <div className={`w-px h-4 bg-gray-300 ${mediaType === "movie" || mediaType === "tv" ? "opacity-0" : "opacity-100"} transition-opacity`}></div>
+          <label className="cursor-pointer relative">
+            <input className="peer sr-only" name="media-type" type="radio" value="tv" checked={mediaType === "tv"} onChange={() => handleMediaTypeChange("tv")} />
+            <div className="media-toggle-btn px-6 py-2 rounded-lg text-sm font-semibold text-gray-500 peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm flex items-center gap-2 transition-all">
+              <MaterialSymbolsTvOutlineRounded className="text-[18px]" />
+              电视剧
+            </div>
+          </label>
+          <div className={`w-px h-4 bg-gray-300 ${mediaType === "tv" || mediaType === "short" ? "opacity-0" : "opacity-100"} transition-opacity`}></div>
+          <label className="cursor-pointer relative">
+            <input className="peer sr-only" name="media-type" type="radio" value="short" checked={mediaType === "short"} onChange={() => handleMediaTypeChange("short")} />
+            <div className="media-toggle-btn px-6 py-2 rounded-lg text-sm font-semibold text-gray-500 peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm flex items-center gap-2 transition-all">
+              <MaterialSymbolsSmartphoneOutline className="text-[18px]" />
+              短剧
+            </div>
+          </label>
         </div>
       </div>
 
-      {/* Categories - 首页和短剧模式不显示标签 */}
-      {mediaType !== "short" && mediaType !== "home" && rawTags.length > 0 && (
-        <div className="w-full overflow-hidden relative group/scroll">
-          <div className="flex gap-3 overflow-x-auto hide-scrollbar py-2 px-1">
+      {/* Categories - 短剧模式不显示标签 */}
+      {mediaType !== "short" && (
+      <div className="w-full overflow-hidden relative group/scroll">
+        <div className="flex gap-3 overflow-x-auto hide-scrollbar py-2 px-1">
+          <button
+            onClick={() => setShowTagModal(true)}
+            className="shrink-0 px-5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 cursor-pointer btn-press flex items-center"
+          >
+            <MaterialSymbolsAdd className="text-[16px] mr-1" />
+            管理标签
+          </button>
+          {currentTags.map((tag) => (
             <button
-              onClick={() => setShowTagModal(true)}
-              className="shrink-0 px-5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 cursor-pointer btn-press flex items-center"
+              key={tag}
+              onClick={() => handleTagClick(tag)}
+              className={`shrink-0 px-5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all cursor-pointer btn-press ${
+                tag === currentTag
+                  ? "bg-primary/10 border border-primary text-primary font-semibold hover:bg-primary hover:text-white"
+                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`}
             >
-              <MaterialSymbolsAdd className="text-[16px] mr-1" />
-              管理标签
+              {tag}
             </button>
-            {currentTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => handleTagClick(tag)}
-                className={`shrink-0 px-5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all cursor-pointer btn-press ${
-                  tag === currentTag
-                    ? "bg-primary/10 border border-primary text-primary font-semibold hover:bg-primary hover:text-white"
-                    : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-linear-to-l from-background-light to-transparent pointer-events-none"></div>
+          ))}
         </div>
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-linear-to-l from-background-light to-transparent pointer-events-none"></div>
+      </div>
       )}
 
       {/* Popular Section */}
@@ -279,10 +225,7 @@ export default function Home() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <span className="w-1 h-6 bg-primary rounded-full"></span>
-            <CurrentIcon className="text-primary text-xl" />
-            {mediaType === "short" ? "红果短剧 - 热门推荐" : 
-             mediaType === "home" ? "热门推荐" :
-             `豆瓣热门 - ${currentTag}`}
+            {mediaType === "short" ? "红果短剧 - 热门推荐" : `豆瓣热门 - ${currentTag}`}
           </h2>
 
           {/* Pagination Controls */}
@@ -337,7 +280,7 @@ export default function Home() {
         <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 modal-backdrop-enter" onClick={() => setShowTagModal(false)}>
           <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto modal-content-enter" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">标签管理 ({MEDIA_CONFIG[mediaType].label})</h3>
+              <h3 className="text-xl font-bold text-gray-900">标签管理 ({mediaType === "movie" ? "电影" : "电视剧"})</h3>
               <button onClick={() => setShowTagModal(false)} className="text-gray-400 hover:text-gray-600 cursor-pointer transition-colors btn-press">
                 <MaterialSymbolsCloseRounded />
               </button>
