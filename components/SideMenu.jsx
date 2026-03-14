@@ -92,36 +92,38 @@ export function SideMenu({ mediaType, onMediaTypeChange }) {
             <p className="text-sm text-gray-500 mt-1">选择您想看的内容类型</p>
           </div>
 
-          {/* 媒体类型选项 */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {mediaOptions.map((option) => {
-              const IconComponent = option.icon;
-              const isActive = mediaType === option.value;
+          {/* 媒体类型选项 - 圆角按钮组 */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="bg-gray-100 p-1.5 rounded-2xl flex flex-col gap-1">
+              {mediaOptions.map((option) => {
+                const IconComponent = option.icon;
+                const isActive = mediaType === option.value;
 
-              return (
-                <button
-                  key={option.value}
-                  onClick={() => handleMediaTypeChange(option.value)}
-                  className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 btn-press ${
-                    isActive
-                      ? "bg-primary text-white shadow-md"
-                      : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <IconComponent
-                    className={`text-2xl ${
-                      isActive ? "text-white" : "text-gray-500"
+                return (
+                  <button
+                    key={option.value}
+                    onClick={() => handleMediaTypeChange(option.value)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                      isActive
+                        ? "bg-primary text-white shadow-md"
+                        : "text-gray-600 hover:bg-gray-200/50"
                     }`}
-                  />
-                  <span className="font-semibold text-base">{option.label}</span>
-                  {isActive && (
-                    <div className="ml-auto">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+                  >
+                    <IconComponent
+                      className={`text-xl ${
+                        isActive ? "text-white" : "text-gray-500"
+                      }`}
+                    />
+                    <span className="font-semibold text-sm">{option.label}</span>
+                    {isActive && (
+                      <div className="ml-auto">
+                        <div className="w-2 h-2 bg-white rounded-full" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* 底部提示 */}
@@ -138,7 +140,7 @@ export function SideMenu({ mediaType, onMediaTypeChange }) {
         <div
           className="fixed inset-0 bg-black/20 z-40"
           onClick={() => setIsOpen(false)}
-        ></div>
+        />
       )}
     </>
   );
