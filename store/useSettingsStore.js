@@ -18,18 +18,6 @@ export const useSettingsStore = create(
       doubanProxy: "https://movie.douban.cmliussss.com",
       doubanImageProxy: "img.doubanio.cmliussss.com",
 
-      // GitHub 链接配置
-      githubUrl: "https://github.com/SeqCrafter/NextTV",
-      setGithubUrl: (url) => set({githubUrl: url}),
-
-      // 网站品牌配置
-      siteName: "NextTV",
-      siteSlogan: "影视无限畅享",
-      siteLogo: "https://tncache1-f1.v3mh.com/image/2026/01/14/67727e3ade57c7062ef81a16d4f711a0.png",
-      setSiteName: (name) => set({siteName: name}),
-      setSiteSlogan: (slogan) => set({siteSlogan: slogan}),
-      setSiteLogo: (logo) => set({siteLogo: logo}),
-
       // 设置去广告开关
       setBlockAdEnabled: (enabled) => set({blockAdEnabled: enabled}),
 
