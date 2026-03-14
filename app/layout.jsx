@@ -1,6 +1,5 @@
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Inter } from "next/font/google";
 
 const inter = Inter({
@@ -17,8 +16,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "NextTV - 影视无限",
-  description: "NextTV 影视播放平台",
+  title: "TV - 平台",
+  description: "TV-平台",
 };
 
 export default function RootLayout({ children }) {
@@ -33,7 +32,6 @@ export default function RootLayout({ children }) {
         <main className="flex-1 flex flex-col items-center w-full px-4 md:px-8 pb-12">
           {children}
         </main>
-        <Footer />
       </body>
     </html>
   );
