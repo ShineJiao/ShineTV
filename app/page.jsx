@@ -260,11 +260,11 @@ export default function Home() {
           } else if (mediaType === "anime" && activeTab === "hot") {
             // 动漫热门使用豆瓣数据（支持所有类型标签）
             const data = await fetchRecommendations("movie", tag, pageSize, 0, doubanProxy);
-            result = data.subjects.map(convertDoubanToMovie);
+            result = data.subjects.map(convertDoubanToMovie).map(item => ({ ...item, type: "anime" }));
           } else if (mediaType === "anime" && activeTab === "new") {
             // 动漫最新使用豆瓣
             const data = await fetchRecommendations("movie", "最新", pageSize, 0, doubanProxy);
-            result = data.subjects.map(convertDoubanToMovie);
+            result = data.subjects.map(convertDoubanToMovie).map(item => ({ ...item, type: "anime" }));
           } else {
             result = [];
           }
