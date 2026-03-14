@@ -193,7 +193,7 @@ const CustomSelect = ({ value, onChange, options, label }) => {
   );
 };
 
-export default function Settings() {
+export default function Settings({ inModal = false, onClose }) {
   const {
     videoSources,
     danmakuSources,
@@ -358,7 +358,7 @@ export default function Settings() {
   ];
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className={inModal ? "" : "w-full max-w-5xl mx-auto"}>
       {/* Video Sources */}
       <section className="bg-white rounded-2xl shadow-soft p-4 md:p-8 mt-6 border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
