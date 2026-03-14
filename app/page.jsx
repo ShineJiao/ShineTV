@@ -7,7 +7,6 @@ import { SideMenu } from "@/components/SideMenu";
 import { usePlayHistoryStore } from "@/store/usePlayHistoryStore";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import { fetchRecommendations, loadUserTags, saveUserTags, defaultMovieTags, defaultTvTags, defaultAnimeTags, defaultVarietyTags, defaultShortDramaTags, convertDoubanToMovie } from "@/lib/doubanApi";
-import { fetchBangumiDaily, fetchBangumiRanking, convertBangumiToMovie } from "@/lib/bangumiApi";
 import {
   MaterialSymbolsChevronLeftRounded,
   MaterialSymbolsChevronRightRounded,
@@ -58,7 +57,7 @@ export default function Home() {
           const [movies, tvs, animes, varieties, shorts] = await Promise.all([
             fetchRecommendations("movie", "热门", 6, 0, doubanProxy),
             fetchRecommendations("tv", "国产剧", 6, 0, doubanProxy),
-            fetchBangumiRanking('tv', 6, 0),
+            fetchRecommendations("movie", "动画", 6, 0, doubanProxy),
             fetchRecommendations("tv", "综艺", 6, 0, doubanProxy),
             fetch(`/api/hongguo?page_limit=6&page_start=0&tag=hot`).then(r => r.json()),
           ]);
@@ -66,7 +65,7 @@ export default function Home() {
           const converted = [
             ...movies.subjects.map(convertDoubanToMovie).map(item => ({ ...item, type: "movie" })),
             ...tvs.subjects.map(convertDoubanToMovie).map(item => ({ ...item, type: "tv" })),
-            ...animes.map(convertBangumiToMovie).map(item => ({ ...item, type: "anime" })),
+            ...animes.subjects.map(convertDoubanToMovie).map(item => ({ ...item, type: "anime" })),
             ...varieties.subjects.map(convertDoubanToMovie).map(item => ({ ...item, type: "variety" })),
             ...(shorts.list || []).map(item => ({
               id: item.title,
@@ -259,35 +258,9 @@ export default function Home() {
             const data = await fetchRecommendations("tv", varietyTag, pageSize, 0, doubanProxy);
             result = data.subjects.map(convertDoubanToMovie).map(item => ({ ...item, type: "variety" }));
           } else if (mediaType === "anime" && activeTab === "hot") {
-            // 动漫热门使用 Bangumi（仅支持 Bangumi 特色标签）
-            if (["热门", "番剧"].includes(tag)) {
-              const bangumiData = await fetchBangumiRanking('tv', pageSize, 0);
-              result = bangumiData.map(convertBangumiToMovie);
-            } else if (["剧场版"].includes(tag)) {
-              const bangumiData = await fetchBangumiRanking('movie', pageSize, 0);
-              result = bangumiData.map(convertBangumiToMovie);
-            } else if (["每日放送", "周一", "周二", "周三", "周四", "周五", "周六", "周日"].includes(tag)) {
-              // 每日放送逻辑
-              const dayMap = {
-                "周一": "monday",
-                "周二": "tuesday",
-                "周三": "wednesday",
-                "周四": "thursday",
-                "周五": "friday",
-                "周六": "saturday",
-                "周日": "sunday",
-                "每日放送": ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][new Date().getDay()],
-              };
-              const day = dayMap[tag];
-              const days = Array.isArray(day) ? day : [day];
-              const bangumiPromises = days.map(d => fetchBangumiDaily(d));
-              const bangumiResults = await Promise.all(bangumiPromises);
-              result = [].concat(...bangumiResults).map(convertBangumiToMovie);
-            } else {
-              // 其他类型标签使用豆瓣数据
-              const data = await fetchRecommendations("movie", tag, pageSize, 0, doubanProxy);
-              result = data.subjects.map(convertDoubanToMovie);
-            }
+            // 动漫热门使用豆瓣数据（支持所有类型标签）
+            const data = await fetchRecommendations("movie", tag, pageSize, 0, doubanProxy);
+            result = data.subjects.map(convertDoubanToMovie);
           } else if (mediaType === "anime" && activeTab === "new") {
             // 动漫最新使用豆瓣
             const data = await fetchRecommendations("movie", "最新", pageSize, 0, doubanProxy);
@@ -313,7 +286,7 @@ export default function Home() {
         // 分页处理
         const paginated = converted.slice(page * pageSize, (page + 1) * pageSize);
         setMovies(paginated);
-      } else if (mediaType === "anime" && activeTab === "hot") {
+      } else if (mediaType === "short") {
         // 短剧使用红果数据，按标签筛选
         const shortDramaTagMap = {
           "热门": "hot",
@@ -339,42 +312,45 @@ export default function Home() {
         }));
         setMovies(converted);
       } else if (mediaType === "anime" && activeTab === "hot") {
-        // 动漫使用 Bangumi 数据
-        let converted = [];
-        
-        if (currentTag === "热门") {
-          // 获取热门动画
-          const bangumiData = await fetchBangumiRanking('tv', pageSize, page * pageSize);
-          converted = bangumiData.map(convertBangumiToMovie);
-        } else if (["周一", "周二", "周三", "周四", "周五", "周六", "周日"].includes(currentTag)) {
-          // 每日放送
-          const dayMap = {
-            "周一": "monday",
-            "周二": "tuesday",
-            "周三": "wednesday",
-            "周四": "thursday",
-            "周五": "friday",
-            "周六": "saturday",
-            "周日": "sunday",
-          };
-          const bangumiData = await fetchBangumiDaily(dayMap[currentTag]);
-          converted = bangumiData.map(convertBangumiToMovie);
-        } else if (currentTag === "每日放送") {
-          // 显示今日放送
-          const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-          const today = days[new Date().getDay()];
-          const bangumiData = await fetchBangumiDaily(today);
-          converted = bangumiData.map(convertBangumiToMovie);
-        } else if (currentTag === "番剧") {
-          // TV 动画
-          const bangumiData = await fetchBangumiRanking('tv', pageSize, page * pageSize);
-          converted = bangumiData.map(convertBangumiToMovie);
-        } else if (currentTag === "剧场版") {
-          // 剧场版
-          const bangumiData = await fetchBangumiRanking('movie', pageSize, page * pageSize);
-          converted = bangumiData.map(convertBangumiToMovie);
-        }
-        
+        // 动漫使用豆瓣数据（支持所有类型标签）
+        const animeTagMap = {
+          // 推荐分类
+          "热门": "热门",
+          "最新": "最新",
+          "豆瓣高分": "豆瓣高分",
+          
+          // 类型分类
+          "动画": "动画",
+          "剧情": "剧情",
+          "喜剧": "喜剧",
+          "动作": "动作",
+          "爱情": "爱情",
+          "科幻": "科幻",
+          "奇幻": "奇幻",
+          "冒险": "冒险",
+          "悬疑": "悬疑",
+          "惊悚": "惊悚",
+          "恐怖": "恐怖",
+          "搞笑": "搞笑",
+          "校园": "校园",
+          "治愈": "治愈",
+          "励志": "励志",
+          "热血": "热血",
+          "机战": "机战",
+          "魔法": "魔法",
+          "神话": "神话",
+          "运动": "运动",
+          "音乐": "音乐",
+          "舞蹈": "舞蹈",
+          "美食": "美食",
+          "历史": "历史",
+          "战争": "战争",
+          "传记": "传记",
+          "纪录片": "纪录片",
+        };
+        const animeTag = animeTagMap[currentTag] || currentTag;
+        const data = await fetchRecommendations("movie", animeTag, pageSize, page * pageSize, doubanProxy);
+        const converted = data.subjects.map(convertDoubanToMovie).map(item => ({ ...item, type: "anime" }));
         setMovies(converted);
       } else if (mediaType === "anime" && activeTab === "new") {
         // 动漫最新使用豆瓣数据
